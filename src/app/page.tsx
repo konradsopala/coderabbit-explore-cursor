@@ -1,7 +1,7 @@
  "use client";
 
 import { useMemo, useState } from "react";
-import styles from "./page.module.css";
+import clsx from "clsx";
 
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"] as const;
 
@@ -127,36 +127,40 @@ export default function Home() {
   };
 
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <header className={styles.header}>
-          <div className={styles.titleGroup}>
-            <h1 className={styles.title}>Calendar</h1>
-            <p className={styles.subtitle}>
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex items-center justify-center px-4 py-6">
+      <main className="w-full max-w-5xl rounded-3xl border border-slate-200 bg-white shadow-[0_18px_55px_rgba(15,23,42,0.16)] p-6 sm:p-8 space-y-6">
+        <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-1">
+            <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-slate-900">
+              Calendar
+            </h1>
+            <p className="text-sm text-slate-500 max-w-xl">
               Browse months, see today at a glance, and get a clean overview of your week.
             </p>
           </div>
-          <div className={styles.nav}>
+          <div className="flex items-center gap-2">
             <button
               type="button"
               aria-label="Previous month"
-              className={styles.navButton}
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-700 text-lg shadow-sm transition hover:bg-slate-100 hover:-translate-y-px hover:shadow-md"
               onClick={goToPreviousMonth}
             >
               ‹
             </button>
-            <div className={styles.monthLabel}>{monthLabel}</div>
+            <div className="min-w-[8rem] text-center text-sm font-medium text-slate-900">
+              {monthLabel}
+            </div>
             <button
               type="button"
               aria-label="Next month"
-              className={styles.navButton}
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-700 text-lg shadow-sm transition hover:bg-slate-100 hover:-translate-y-px hover:shadow-md"
               onClick={goToNextMonth}
             >
               ›
             </button>
             <button
               type="button"
-              className={`${styles.navButton} ${styles.todayButton}`}
+              className="inline-flex h-9 px-3 items-center justify-center rounded-full border border-slate-300 bg-white text-xs font-medium text-slate-800 shadow-sm transition hover:bg-slate-100 hover:-translate-y-px hover:shadow-md"
               onClick={goToToday}
             >
               Today
@@ -164,58 +168,94 @@ export default function Home() {
           </div>
         </header>
 
-        <section className={styles.calendar} aria-label="Monthly calendar">
-          <div className={styles.weekdays}>
-            {WEEKDAYS.map((day) => (
-              <div key={day} className={styles.weekday}>
-                {day}
-              </div>
-            ))}
-          </div>
-          <div className={styles.days}>
-            {calendarCells.map((cell) => {
-              const dayNumber = cell.date.getDate();
-              const dayClassNames = [
-                styles.dayNumber,
-                !cell.isCurrentMonth ? styles.outside : "",
-                cell.isToday ? styles.todayNumber : "",
-              ]
-                .filter(Boolean)
-                .join(" ");
+        <section
+          className="rounded-2xl border border-slate-200 bg-slate-50 overflow-hidden"
+          aria-label="Monthly calendar"
+        >
+          <table className="w-full border-collapse bg-white text-left text-xs">
+            <thead className="bg-slate-100 border-b border-slate-200 text-[0.7rem] font-medium uppercase tracking-[0.18em] text-slate-500">
+              <tr>
+                {WEEKDAYS.map((day) => (
+                  <th
+                    key={day}
+                    scope="col"
+                    className="px-2 py-2 text-center font-medium"
+                  >
+                    {day}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {Array.from({ length: calendarCells.length / 7 }).map(
+                (_, weekIndex) => {
+                  const start = weekIndex * 7;
+                  const week = calendarCells.slice(start, start + 7);
 
-              return (
-                <div
-                  key={cell.key}
-                  className={styles.dayCell}
-                  aria-label={cell.date.toDateString()}
-                >
-                  {cell.isToday && (
-                    <span className={styles.todayBadge} aria-hidden="true" />
-                  )}
-                  <span className={dayClassNames}>{dayNumber}</span>
-                  {/* Simple example “events” marker for weekends */}
-                  {cell.date.getDay() === 0 || cell.date.getDay() === 6 ? (
-                    <span className={styles.eventDot} aria-hidden="true" />
-                  ) : null}
-                </div>
-              );
-            })}
-          </div>
+                  return (
+                    <tr key={week[0]?.key ?? weekIndex}>
+                      {week.map((cell) => {
+                        const dayNumber = cell.date.getDate();
+
+                        return (
+                          <td
+                            key={cell.key}
+                            className="align-top border-b border-slate-100 px-2 py-1.5 first:border-l-0 last:border-r-0"
+                          >
+                            <div className="relative min-h-[4.5rem]">
+                              {cell.isToday && (
+                                <span
+                                  className="pointer-events-none absolute inset-1 rounded-xl bg-yellow-200/70"
+                                  aria-hidden="true"
+                                />
+                              )}
+                              <span
+                                className={clsx(
+                                  "relative z-10 text-xs font-medium",
+                                  !cell.isCurrentMonth
+                                    ? "text-slate-400"
+                                    : "text-slate-900",
+                                  cell.isToday && "text-slate-900",
+                                )}
+                              >
+                                {dayNumber}
+                              </span>
+                              {/* Simple example “events” marker for weekends */}
+                              {cell.date.getDay() === 0 ||
+                              cell.date.getDay() === 6 ? (
+                                <span
+                                  className="absolute bottom-1.5 left-1/2 h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-sky-500"
+                                  aria-hidden="true"
+                                />
+                              ) : null}
+                            </div>
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  );
+                },
+              )}
+            </tbody>
+          </table>
         </section>
 
-        <footer className={styles.footer}>
-          <div className={styles.legend}>
-            <div className={styles.legendItem}>
-              <span className={styles.legendToday} />
-              <span className={styles.legendLabel}>Today</span>
+        <footer className="flex flex-col gap-3 pt-1 text-[0.75rem] text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <span className="h-2.5 w-2.5 rounded-full bg-yellow-400" />
+              <span>Today</span>
             </div>
-            <div className={styles.legendItem}>
-              <span className={styles.legendDot} />
-              <span className={styles.legendLabel}>Weekend</span>
+            <div className="flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-sky-500" />
+              <span>Weekend</span>
             </div>
           </div>
-          <div className={styles.timezone}>
-            Times shown in <strong>{timezoneLabel}</strong>
+          <div className="text-[0.75rem] text-slate-500">
+            Times shown in{" "}
+            <strong className="font-medium text-slate-800">
+              {timezoneLabel}
+            </strong>
           </div>
         </footer>
       </main>
