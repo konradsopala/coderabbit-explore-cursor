@@ -1,6 +1,7 @@
  "use client";
 
 import { useMemo, useState } from "react";
+import clsx from "clsx";
 
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"] as const;
 
@@ -187,6 +188,7 @@ export default function Home() {
               return (
                 <div
                   key={cell.key}
+                  role="gridcell"
                   className="relative min-h-[4.5rem] border-r border-b border-slate-100 px-2 py-1.5 last:border-r-0"
                   aria-label={cell.date.toDateString()}
                 >
@@ -197,13 +199,11 @@ export default function Home() {
                     />
                   )}
                   <span
-                    className={[
+                    className={clsx(
                       "relative z-10 text-xs font-medium",
                       !cell.isCurrentMonth ? "text-slate-400" : "text-slate-900",
-                      cell.isToday ? "text-slate-900" : "",
-                    ]
-                      .filter(Boolean)
-                      .join(" ")}
+                      cell.isToday && "text-slate-900",
+                    )}
                   >
                     {dayNumber}
                   </span>
@@ -233,7 +233,7 @@ export default function Home() {
           </div>
           <div className="text-[0.75rem] text-slate-500">
             Times shown in{" "}
-            <strong className="font-medium text-slate-300">
+            <strong className="font-medium text-slate-800">
               {timezoneLabel}
             </strong>
           </div>
