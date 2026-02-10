@@ -172,52 +172,72 @@ export default function Home() {
           className="rounded-2xl border border-slate-200 bg-slate-50 overflow-hidden"
           aria-label="Monthly calendar"
         >
-          <div className="grid grid-cols-7 border-b border-slate-200 bg-slate-100 text-[0.7rem] font-medium uppercase tracking-[0.18em] text-slate-500">
-            {WEEKDAYS.map((day) => (
-              <div
-                key={day}
-                className="px-2 py-2 text-center"
-              >
-                {day}
-              </div>
-            ))}
-          </div>
-          <div className="grid grid-cols-7 bg-white">
-            {calendarCells.map((cell) => {
-              const dayNumber = cell.date.getDate();
-              return (
-                <div
-                  key={cell.key}
-                  role="gridcell"
-                  className="relative min-h-[4.5rem] border-r border-b border-slate-100 px-2 py-1.5 last:border-r-0"
-                  aria-label={cell.date.toDateString()}
-                >
-                  {cell.isToday && (
-                    <span
-                      className="pointer-events-none absolute inset-1 rounded-xl bg-yellow-200/70"
-                      aria-hidden="true"
-                    />
-                  )}
-                  <span
-                    className={clsx(
-                      "relative z-10 text-xs font-medium",
-                      !cell.isCurrentMonth ? "text-slate-400" : "text-slate-900",
-                      cell.isToday && "text-slate-900",
-                    )}
+          <table className="w-full border-collapse bg-white text-left text-xs">
+            <thead className="bg-slate-100 border-b border-slate-200 text-[0.7rem] font-medium uppercase tracking-[0.18em] text-slate-500">
+              <tr>
+                {WEEKDAYS.map((day) => (
+                  <th
+                    key={day}
+                    scope="col"
+                    className="px-2 py-2 text-center font-medium"
                   >
-                    {dayNumber}
-                  </span>
-                  {/* Simple example “events” marker for weekends */}
-                  {cell.date.getDay() === 0 || cell.date.getDay() === 6 ? (
-                    <span
-                      className="absolute bottom-1.5 left-1/2 h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-sky-500"
-                      aria-hidden="true"
-                    />
-                  ) : null}
-                </div>
-              );
-            })}
-          </div>
+                    {day}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {Array.from({ length: calendarCells.length / 7 }).map(
+                (_, weekIndex) => {
+                  const start = weekIndex * 7;
+                  const week = calendarCells.slice(start, start + 7);
+
+                  return (
+                    <tr key={week[0]?.key ?? weekIndex}>
+                      {week.map((cell) => {
+                        const dayNumber = cell.date.getDate();
+
+                        return (
+                          <td
+                            key={cell.key}
+                            className="align-top border-b border-slate-100 px-2 py-1.5 first:border-l-0 last:border-r-0"
+                          >
+                            <div className="relative min-h-[4.5rem]">
+                              {cell.isToday && (
+                                <span
+                                  className="pointer-events-none absolute inset-1 rounded-xl bg-yellow-200/70"
+                                  aria-hidden="true"
+                                />
+                              )}
+                              <span
+                                className={clsx(
+                                  "relative z-10 text-xs font-medium",
+                                  !cell.isCurrentMonth
+                                    ? "text-slate-400"
+                                    : "text-slate-900",
+                                  cell.isToday && "text-slate-900",
+                                )}
+                              >
+                                {dayNumber}
+                              </span>
+                              {/* Simple example “events” marker for weekends */}
+                              {cell.date.getDay() === 0 ||
+                              cell.date.getDay() === 6 ? (
+                                <span
+                                  className="absolute bottom-1.5 left-1/2 h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-sky-500"
+                                  aria-hidden="true"
+                                />
+                              ) : null}
+                            </div>
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  );
+                },
+              )}
+            </tbody>
+          </table>
         </section>
 
         <footer className="flex flex-col gap-3 pt-1 text-[0.75rem] text-slate-500 sm:flex-row sm:items-center sm:justify-between">
